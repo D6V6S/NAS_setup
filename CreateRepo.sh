@@ -14,80 +14,85 @@
         https://gist.github.com/Nilpo/8ed5e44be00d6cf21f22
     
     5. Create task on NAS to startup site after NAS loaded.
+    6. Inftall "npm install pm2 -g"
+    7. Create Git repo on GitHub
+    8. Copy Scrypt to NAS. "chmod +x CreateRepo.sh" + "/volume1/git/CreateRepo.sh"
 
 MULTILINE-COMMENT
 
-#projname="mysite"
 echo "Enter Your project name"
 read projname
+# projname="mysite"
 
-echo "Enter branch name to checkout (master or main)"
-# branch="master "
-read branch
+# echo "Enter branch name to checkout (master or main)"
+# read branch
+# branch="main"
 
 
-# Varieble
+# Variables
 user="$(whoami)"
-# host_name="$(hostname)"
-host_name="$(ifconfig ovs_eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')"
+host_ip="$(ifconfig ovs_eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')"
 port=${SSH_CLIENT##* }
 gitfolderpath="/volume1/git"
 webfolderpath="/volume1/web"
-projname="testsite"
 branch="main"
-
-
+# projname="testsite"
+# host_name="$(hostname)"
 
 
 # Check 'git' directory to exist
 if [ -d "$gitfolderpath" ] 
 then
-    echo "Directory $gitfolderpath exists." 
-
     # Setting up a Bare Repository 
 
     echo "Create git repo"
-    git init --bare --shared $gitfolderpath/$projname.git
-    # git config --global init.defaultBranch $branch
-    git branch -m main
-
-
-    echo "GIT_WORK_TREE=/volume1/web/testsite git checkout -qf" >> /volume1/git/testsite/hooks/post-receive
-    echo "GIT_WORK_TREE=$webfolderpath/$projname git checkout -qf [--detach] [$branch]" >> $gitfolderpath/$projname.git/hooks/post-receive
+    git init --bare --initial-branch main --shared $gitfolderpath/$projname.git
+       
+    # Create 'post-receive' file.
+    # echo "GIT_WORK_TREE=$webfolderpath/$projname git checkout -qf [--detach] [$branch]" >> $gitfolderpath/$projname.git/hooks/post-receive
+    echo "GIT_WORK_TREE=$webfolderpath/$projname git checkout -qf" >> $gitfolderpath/$projname.git/hooks/post-receive
     chmod +x $gitfolderpath/$projname.git/hooks/post-receive
-    echo "File 'post-receive' created"
-
-    # Edit Git config
-    # echo '[remote "nas"] ' >> $gitfolderpath/$projname.git/config
-    # echo "url = ssh://$user@$host_name:$port$gitfolderpath/$projname.git" >> $gitfolderpath/$projname.git/config
-    # echo "fetch = +refs/heads/*:refs/remotes/nas/*" >> $gitfolderpath/$projname.git/config
-
-    # echo "Config file modified"
-
+    echo "File 'post-receive' created"  
+   
     # Created folder for website
+
     mkdir $webfolderpath/$projname
     echo "Folder '$projname' for website created"
 
-
     # Setup file for PC
 
-    echo 'Git Rero Created'
-    # ssh://git@github.com:D6V6S/testsite.git
+    echo 'NAS Git Rero Created'
 
-    # git remote add origin git@github.com:D6V6S/testsite.git
-    # git branch -M main
-    # git push -u origin main
+    # Script to create Git Rero on GitHub - next version
+    # https://github.com/cli/cli#installation
+    # https://cli.github.com/manual/gh_repo_create
 
-    echo "git clone ssh://$user@$host_name:$port$gitfolderpath/$projname.git" >> $gitfolderpath/file.log
-    # echo "git init" >> $gitfolderpath/file.log
+    echo "#Install and connect 'GitHub CLI'" >> $gitfolderpath/$projname.log
+    
+    echo "gh repo create $projname --public --clone" >> $gitfolderpath/$projname.log
+    
+    echo "#ADD 'test' FILE TO PROJECT" >> $gitfolderpath/$projname.log
+    echo '"This is a test" >> ./$projname/Testfile.txt' >> $gitfolderpath/$projname.log
 
-    echo "git remote rename origin nas" >> $gitfolderpath/file.log
-    echo "git remote add origin ssh://git@github.com:D6V6S/$projname.git" >> $gitfolderpath/file.log
+    # Edit Git config Lihux
+    echo "#Edit Git config Lihux" >> $gitfolderpath/$projname.log
 
-    echo "ADD FILE TO PROJECT" >> $gitfolderpath/file.log
-    echo "git add -A" >> $gitfolderpath/file.log
-    echo "git commit -m 'first'" >> $gitfolderpath/file.log
-    echo "git push -u nas master" >> $gitfolderpath/file.log
+    echo "echo '[remote 'nas']' >> ./$projname/.git/config" >> $gitfolderpath/$projname.log
+    echo "echo 'url = ssh://$user@$host_ip:$port$gitfolderpath/$projname.git' >> ./$projname/.git/config" >> $gitfolderpath/$projname.log
+    echo "echo 'fetch = +refs/heads/*:refs/remotes/nas/*' >> ./$projname/.git/config" >> $gitfolderpath/$projname.log
+
+    # Edit Git config Windows
+    echo "#Edit Git config Windows" >> $gitfolderpath/$projname.log
+
+    echo "Add-Content $projname\.git\config '[remote 'nas']'" >> $gitfolderpath/$projname.log
+    echo "Add-Content $projname\.git\config 'url = ssh://$user@$host_ip:$port$gitfolderpath/$projname.git' " >> $gitfolderpath/$projname.log
+    echo "Add-Content $projname\.git\config 'fetch = +refs/heads/*:refs/remotes/nas/*' " >> $gitfolderpath/$projname.log
+
+    echo "cd $projname" >> $gitfolderpath/$projname.log
+    echo "git add ." >> $gitfolderpath/$projname.log
+    echo "git commit -m 'first'" >> $gitfolderpath/$projname.log
+    echo "git push -u nas master" >> $gitfolderpath/$projname.log
+    echo "git push -u origin master" >> $gitfolderpath/$projname.log
 
 
 else
@@ -95,18 +100,3 @@ else
     echo "Plese: Pre setup."
     exit
 fi
-
-# …or create a new repository on the command line
-# echo "# testsite" >> README.md
-# git init
-# git add README.md
-# git commit -m "first commit"
-# git branch -M main
-# git remote add origin https://github.com/D6V6S/testsite.git
-# git push -u origin main
-
-# …or push an existing repository from the command line
-
-# git remote add origin https://github.com/D6V6S/testsite.git
-# git branch -M main
-# git push -u origin main
