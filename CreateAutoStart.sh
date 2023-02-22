@@ -50,5 +50,5 @@ sudo chmod 755 $startScript
 rm -f $websiteScriptDir/AutoStartLog.sh
 
 echo "#!/bin/sh
-echo "Server start - $(date +'%F %H:%I:%S')" >> $websiteScriptDir/AutoStartLog.log
+echo \"Server start - \$(date +'%F %T %Z')\" >> $websiteScriptDir/AutoStartLog.log
 " >> $websiteScriptDir/AutoStartLog.sh
