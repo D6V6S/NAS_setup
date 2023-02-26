@@ -8,7 +8,6 @@
 
 # Variables
 startScript="/usr/local/etc/rc.d/SiteAutoStart.sh"
-# startScript="/volume1/git/SiteAutoStart.sh" #for test
 websiteScriptDir="/volume1/git/scripts"
 
 # Create dir for scripts
@@ -46,7 +45,7 @@ sudo chmod +x $startScript
 
 sudo chmod 755 $startScript
 
-## Create start server log script
+## Delete start server log script, if exist
 rm -f $websiteScriptDir/AutoStartLog.sh
 
 echo "#!/bin/sh

@@ -5,12 +5,11 @@ read projname
 
 # Variables
 user="$(whoami)"
-host_ip="$(ifconfig ovs_eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')"
+host_ip="$(ifconfig ovs_eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')" # Obtaining IP address on the "ovs_eth0" port, if necessary, change to "ovs_eth1" port.
 port=${SSH_CLIENT##* }
 gitfolderpath="/volume1/git"
 webfolderpath="/volume1/web"
 branch="master"
-# host_name="$(hostname)"
 
 
 # Check 'git' directory to exist
@@ -22,8 +21,6 @@ then
     git init --bare --initial-branch $branch --shared $gitfolderpath/$projname.git
        
     # Create 'post-receive' file.
-    # echo "GIT_WORK_TREE=$webfolderpath/$projname git checkout -qf [--detach] [$branch]" >> $gitfolderpath/$projname.git/hooks/post-receive
-    #GIT_WORK_TREE=$webfolderpath/$projname git checkout -qf
     echo "
     # the work tree, where the checkout/deploy should happen
     TARGET=\"$webfolderpath/$projname\"
@@ -44,8 +41,8 @@ then
                 echo "Ref \$ref received. Doing nothing: only the \$branch branch may be deployed on this server."
         fi
     done
-    
     " >> $gitfolderpath/$projname.git/hooks/post-receive
+
     chmod +x $gitfolderpath/$projname.git/hooks/post-receive
     echo "File 'post-receive' created"  
  
